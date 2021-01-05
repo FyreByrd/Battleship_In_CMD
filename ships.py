@@ -1,0 +1,11 @@
+class Ships:
+    tugh = "c>"
+    tugv = "U^"
+    subh = "cf>"
+    subv = "U@^"
+    bath = "CI>"
+    batv = "UH^"
+    desh = "<II>"
+    desv = "VHH^"
+    airh = "[I&I]"
+    airv = "=H&H="
