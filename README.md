@@ -1,6 +1,8 @@
 # Battleship_In_CMD
 A version of the classic game "Battleship" that is playable in the command line.
 
+The purpose of this project is to test my coding abilities and learn Python
+
 If you download the program files, you should be able to run it by executing the command "py battleship.py" in your command line.
 You may need to change your present directory to the one where battleship.py is stored.
 
