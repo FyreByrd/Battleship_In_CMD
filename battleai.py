@@ -7,25 +7,30 @@ class BasicAI:
         self.opp = opp
         self.grid_1 = []
         self.all = []
-        r = randint(0,1)
         for i in range(100):
             c = self.radar.coords_from_rawcoord(i)
             self.all.append(c)
-        flip = r - 1
-        for i in range(r,100,2):
-            c = self.radar.coords_from_rawcoord(i+flip)
+        flip = 0
+        for i in range(1,100,2):
+            c = self.radar.coords_from_rawcoord(i-flip)
             self.grid_1.append(c)
             if i % 10 == 9:
-                flip = -1 if flip == 0 else 0
+                flip = 1 if flip == 0 else 0
         self.hits = []
         self.misses = []
         self.nchecked = []
+        self.check_later = []
+        self.guesses_wout_hit = 0
         self.totry = []
         self.mode = "Hunt"
     def guess(self, guesses = 1,blah=False):
         output = ""
         int_to_char = {0:"A",1:"B",2:"C",3:"D",4:"E",5:"F",6:"G",7:"H",8:"I",9:"J"}
         for g in range(guesses):
+            if self.mode == "Hunt" and self.guesses_wout_hit > 5 and len(self.check_later) > 0:
+                self.mode = "Target"
+                self.totry.extend(self.check_later)
+                self.check_later.clear()
             if self.mode == "Target":
                 # check unchecked hits for valid neighbors
                 for h in self.hits:
@@ -50,9 +55,15 @@ class BasicAI:
             if coords in self.all:
                 self.all.remove(coords)
             if "Hit" in val:
+                self.guesses_wout_hit = 0
                 self.hits.append(coords)
                 self.mode = "Target"
+                if "Sunk" in val:
+                    self.mode = "Hunt"
+                    self.check_later.extend(self.totry)
+                    self.totry.clear()
             elif "Miss" in val:
+                self.guesses_wout_hit += 1
                 self.misses.append(coords)  
             output += " AI guessed "+int_to_char[coords[0]]+" "+str(coords[1]//2+1)+"\n"+val+"\n"
         return output

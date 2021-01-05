@@ -181,7 +181,6 @@ class BattleShipMain:
         print(" Time taken: "+str(time() - t_0))
         self.state.set("Main Menu")
         print("\n\n Main Menu")
-
     def loop(self):
         while True:
             if self.state.get() == "Main Menu":
@@ -300,7 +299,7 @@ class BattleShipMain:
                             print(" Game Mode: "+game_mode)
                             print(" AI Level: "+ai_level)
                             print(" Final Scores:")
-                            print(" "+player+": "+str(scores.get_score(player)))
+                            print(" "+self.player+": "+str(scores.get_score(self.player)))
                             print(" "+ai_name+": "+str(scores.get_score(ai_name)))
                             self.state.set("Main Menu")
                             print("\n\n\n Main Menu")
@@ -401,7 +400,6 @@ class BattleShipMain:
                 print(" "+str(self.state.get())+" is an invalid state")
                 self.state.set("Main Menu")
                 print("\n Main Menu")
-
 if __name__ == '__main__':
     game = BattleShipMain()
     game.loop()
