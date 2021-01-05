@@ -32,7 +32,7 @@ class BattleShipMain:
             return inp.split(div)
         else:
             return inp.strip()
-    def main(self):
+    def __init__(self):
         self.clear()
         print(welcome)
         self.player = self.get_input("type the name you would like to use",case=True)
@@ -206,7 +206,7 @@ class BattleShipMain:
                     self.clear()
                     exit()
                 elif "whoami" in com:
-                    print(" username: "+player)
+                    print(" username: "+self.player)
                 elif "new" in com:
                     g = 0
                     com = com.removeprefix("new")
@@ -319,7 +319,8 @@ class BattleShipMain:
                     print(" board  - displays the board")
                     print(" guess [row, col] - returns status of coordinates given")
                     print(" whoami - displays your username")
-                    print(" info  - displays information about current game")
+                    print(" info   - displays information about current game")
+                    print(" pass   - skips your turn (useful for test the AI turn-by-turn)")
                 elif "exit" in com:
                     print(" Exiting Game ...")
                     self.clear()
@@ -382,14 +383,16 @@ class BattleShipMain:
                         if g >= max_guesses:
                             turn += 1                           
                 elif "whoami" in com:
-                    print(" username: "+player)
+                    print(" username: "+self.player)
                 elif "info" in com:
                     print(" Turn: "+str(turn))
                     print(" Game Mode: "+game_mode)
                     print(" AI Level: "+ai_level)
                     print(" Scores:")
-                    print(" "+player+": "+str(scores.get_score(player)))
+                    print(" "+self.player+": "+str(scores.get_score(self.player)))
                     print(" "+ai_name+": "+str(scores.get_score(ai_name)))
+                elif "pass" in com:
+                    turn += 1
                 else:
                     print(" "+str(com)+" is an invalid or unrecognized command")
                     print(" type 'help' to list available commands")
@@ -401,6 +404,5 @@ class BattleShipMain:
 
 if __name__ == '__main__':
     game = BattleShipMain()
-    game.main()
     game.loop()
     exit()

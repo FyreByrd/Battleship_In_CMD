@@ -11,9 +11,12 @@ class BasicAI:
         for i in range(100):
             c = self.radar.coords_from_rawcoord(i)
             self.all.append(c)
+        flip = r - 1
         for i in range(r,100,2):
-            c = self.radar.coords_from_rawcoord(i)
+            c = self.radar.coords_from_rawcoord(i+flip)
             self.grid_1.append(c)
+            if i % 10 == 9:
+                flip = -1 if flip == 0 else 0
         self.hits = []
         self.misses = []
         self.nchecked = []
