@@ -181,6 +181,11 @@ class BattleShipMain:
         print(" Time taken: "+str(time() - t_0))
         self.state.set("Main Menu")
         print("\n\n Main Menu")
+    def print_display(self,radar,board):
+        print(" Radar:")
+        print(radar.display_board())
+        print(" Ships:")
+        print(board.display_board())
     def loop(self):
         while True:
             if self.state.get() == "Main Menu":
@@ -242,6 +247,7 @@ class BattleShipMain:
                     turn = 1
                     if starting == 0:
                         print(" It's your turn")
+                        self.print_display(player_radar,player_board)
                 elif "test" in com:
                     if "x" in com:
                         self.matchup_ai()
@@ -273,11 +279,6 @@ class BattleShipMain:
                     print(" "+str(com)+" is an invalid or unrecognized command")
                     print(" type 'help' to list available commands")
             elif self.state.get() == "Game":
-                print(" Playing Area:")
-                print(" Radar:")
-                print(player_radar.display_board())
-                print(" Ships:")
-                print(player_board.display_board())
                 #AI turn code
                 t = turn % 2
                 if t == starting:
@@ -327,10 +328,7 @@ class BattleShipMain:
                     print(welcome)
                     print(" "+self.state.get())
                 elif "board" in com:
-                    print(" Radar:")
-                    print(player_radar.display_board())
-                    print(" Ships:")
-                    print(player_board.display_board())
+                    self.print_display(player_radar,player_board)
                 elif "guess" in com:
                     if com == "guess":
                         print(" guess cannot be used without parameters")
@@ -360,10 +358,10 @@ class BattleShipMain:
                     print(val)
                     if "again" not in val:
                         if "Sunk" in val:
-                            scores.inc_score(player, 1)
+                            scores.inc_score(self.player, 1)
                             if game_mode == "Salvo":
                                 max_ai_guesses -= 1
-                            if scores.get_score(player) >= 5:
+                            if scores.get_score(self.player) >= 5:
                                 print(" Radar:")
                                 print(player_radar.display_board())
                                 print(" Ships:")
@@ -372,15 +370,16 @@ class BattleShipMain:
                                 print(" Game Mode: "+game_mode)
                                 print(" AI Level: "+ai_level)
                                 print(" Final Scores:")
-                                print(" "+player+": "+str(scores.get_score(player)))
+                                print(" "+self.player+": "+str(scores.get_score(self.player)))
                                 print(" "+ai_name+": "+str(scores.get_score(ai_name)))
-                                print(" Congratulations, "+player+"! You Won!")
+                                print(" Congratulations, "+self.player+"! You Won!")
                                 self.state.set("Main Menu")
                                 print("\n\n\n Main Menu")
                                 continue
                         g += 1
                         if g >= max_guesses:
                             turn += 1                           
+                    self.print_display(player_radar,player_board)
                 elif "whoami" in com:
                     print(" username: "+self.player)
                 elif "info" in com:
