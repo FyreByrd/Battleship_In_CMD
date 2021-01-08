@@ -68,6 +68,7 @@ class AdvancedAI:
             self.pcloud.append(0)
         self.weights = [2,3,3,4,5]
         self.hits = []
+        self.bonuses = []
         self.sinks = []
         self.radar = radar
         self.mode = "Hunt"
@@ -107,6 +108,50 @@ class AdvancedAI:
                     return output
                 output.append(i)
         return output
+    def neighbors(self, c1, c2):
+        if (c1 + 10) == c2 or (c1 - 10) == c2:
+            return True
+        elif c1 % 10 != 0 and (c1 - 1) == c2:
+            return True
+        elif c1 % 10 != 9 and (c1 + 1) == c2:
+            return True
+        else:
+            return False
+    def colinear(self, cent, n1, n2):
+        if n1 == n2:
+            return False
+        if self.neighbors(cent, n1) and self.neighbors(cent, n2):
+            vert = False
+            if (cent + 10) == n1 or (cent-10) == n1:
+                vert = True
+            if vert and ((cent + 10) == n2 or (cent - 10) == n2):
+                return True
+            elif not vert and ((cent + 1) == n2 or (cent - 1) == n2):
+                return True
+        return False
+    def evaluate_bonuses(self):
+        newbonuses = []
+        for c in self.hits:
+            if c in self.sinks:
+                continue
+            ns = []
+            for h in self.hits:
+                if h == c:
+                    continue
+                if self.neighbors(c,h):
+                    ns.append(h)
+            if len(ns) == 0:
+                newbonuses.append(c)
+                self.mode = "Target"
+            elif len(ns) == 1:
+                if not (ns[0] in self.sinks and self.hits.index(c) < self.hits.index(ns[0])):
+                    newbonuses.append(c)
+                    self.mode = "Target"
+            elif len(ns) == 2:
+                if not self.colinear(c, ns[0], ns[1]):
+                    if ns[0] not in self.hits or ns[1] not in self.hits:
+                        newbonuses.append(c)
+        self.bonuses = newbonuses
     def update_clouds(self, targeting=False):
         for i in range(100):
             if not self.pcloud[i] < 0:
@@ -126,11 +171,11 @@ class AdvancedAI:
                 valid2 = not targeting
                 if targeting:
                     for k in range(1,len(result)):
-                        if result[k] in self.hits:
+                        if result[k] in self.bonuses:
                             valid1 = True
                             bonus1 += 5
                     for k in range(1,len(result2)):
-                        if result2[k] in self.hits:
+                        if result2[k] in self.bonuses:
                             valid2 = True
                             bonus2 += 5
                 if result[0] == "":
@@ -191,10 +236,12 @@ class AdvancedAI:
             val = self.opp.guess(coords, self.radar)
             if "Hit" in val:
                 self.hits.append(self.opp.rawcoord_from_coords(coords))
+                self.bonuses.append(self.opp.rawcoord_from_coords(coords))
                 self.mode = "Target"
             if "Sunk" in val:
                 self.sinks.append(self.opp.rawcoord_from_coords(coords))
                 self.mode = "Hunt"
+                self.evaluate_bonuses()
             self.remove_coord(coords)
             if not testing:
                 print(" Hits: "+str(self.hits)) 
