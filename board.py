@@ -8,7 +8,7 @@ from random import randrange
 class Ship:
     def __init__(this):
         horizontal = ["[###]","<ss>","co>","cf>","c>"]
-        vertical = ["=HHH=","^HHV","^OU","^@U","^U"]
+        vertical = ["=HHH=","AHHV","^OU","^@U","^U"]
         this.ships = (horizontal, vertical)
         this.uniq = {"#":0,"=":0,"s":1,"V":1,"o":2,"O":2,"f":3,"@":3}
 
@@ -125,7 +125,24 @@ class Board:
     def clear_board(this):
         this.data = {"board":"0"*100, "radar":"0"*100, "raw":"0"*100}
     
-    #<<<<<Ship Insertion Functions>>>>>
+    #<<<<<Coordinate Neighbor Functions
+    #--returns coordinate directly above
+    def u(this, c:int):
+        return c - 10 if c - 10 > 0 else -1
+    #--returns coordinate directly below
+    def d(this, c:int):
+        return c + 10 if c + 10 < 100 else -1
+    #--returns coordinate directly to the left
+    def l(this, c:int):
+        return c - 1 if c % 10 != 0 else -1
+    #--returns coordinate directly to the right
+    def r(this, c:int):
+        return c + 1 if c % 10 != 9 else -1
+    #--returns coordinate's four neighbors as a tuple in clockwise order from the top
+    def neighbors(this, c:int):
+        return (this.u(c), this.r(c), this.d(c), this.l(c))
+
+    #<<<<<Ship Placement Functions>>>>>
     #--generates a random board
     def randomize(this):
         ships = [(5,"5"),(4,"4"),(3,"3"),(3,"2"),(2,"1")]
