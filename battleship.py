@@ -38,6 +38,7 @@ class BattleShipMain():
     def __init__(this):
         pname = this.get_input("Type the name you would like to use ",case_sensitive=True)
         this.player = HumanPlayer(pname)
+        this.opp = HumanPlayer("ai")
         print(" Welcome, "+str(this.player))
         print(" Type 'help' to list available commands")
     

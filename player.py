@@ -2,6 +2,9 @@
 #author: Aidan Jones
 #AI algorithms are based off of: https://www.datagenetics.com/blog/december32011/
 
+#<<<<<Import Statements>>>>>
+from board import Board
+
 #<<<<<Class Definitions>>>>>
 #--base class for player
 class Player():
@@ -9,17 +12,27 @@ class Player():
     def __init__(this,name:str):
         this.name = name
         this.score = 0
+        this.board = Board()
     #--str conversion method
     def __str__(this):
         return this.name
     #--method to take a turn
-    def turn(this):
-        raise NotImplementedError
+    def turn(this, opponent):
+        return "<Player.turn()> Not Implemented for use."
 #--class for basic human player
 class HumanPlayer(Player):
     #--constructor
     def __init__(this, name:str):
         super().__init__(name)
+    #--returns result of calling board.get on opponent's board
+    def turn(this, opponent:Player, c:tuple):
+        c = this.board.conv2int(c)
+        s = opponent.board.guess(c)
+        if "Miss" in s:
+            this.board.insert("O",c,"radar")
+        elif "Hit" in s:
+            this.board.insert("X",c,"radar")
+        return s
 #--class for a human opponent playing through the internet
 #class WebPlayer(HumanPlayer):
 #    pass
