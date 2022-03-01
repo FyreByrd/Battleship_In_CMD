@@ -200,7 +200,7 @@ class Board:
                 if not match:
                     s = this.shipdict.ships[0][this.shipdict.uniq[c]]
                     match = True
-            except ValueError:
+            except (ValueError, KeyError):
                 match = False
                 continue
         if not match:

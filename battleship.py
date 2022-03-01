@@ -46,6 +46,11 @@ class BattleShipMain():
         this.opp = None
         print(" Welcome, "+str(this.player))
         print(" Type 'help' to list available commands")
+    #--converts a string to a coordinate
+    def str2coord(this, s:str):
+        if len(s) < 2:
+            raise ValueError
+        return (str(s[0]),int(s[1:]) -1)
     #--loop for running a game of Battleship
     def game_loop(this):
         #--setup
@@ -53,13 +58,13 @@ class BattleShipMain():
         initialized = False #check for if board is initialized
         ship_dict = this.player.get_board().shipdict.ships[0]
         msl = [ #master ship list
-            "1: "+ship_dict[4]+"\n", #destroyer
-            "2: "+ship_dict[3]+"\n", #submarine
-            "3: "+ship_dict[2]+"\n", #cruiser
-            "4: "+ship_dict[1]+"\n", #battleship
-            "5: "+ship_dict[0]+"\n"  #aircraft carrier
+            "1: "+ship_dict[4], #destroyer
+            "2: "+ship_dict[3], #submarine
+            "3: "+ship_dict[2], #cruiser
+            "4: "+ship_dict[1], #battleship
+            "5: "+ship_dict[0]  #aircraft carrier
         ]
-        ship_string = msl[0]+msl[1]+msl[2]+msl[3]+msl[4]
+        ship_string = msl[0]+"\n"+msl[1]+"\n"+msl[2]+"\n"+msl[3]+"\n"+msl[4]
         print(" Ship Placement:")
         print(this.player.get_board().ships())
         print(ship_string)
@@ -70,10 +75,19 @@ class BattleShipMain():
                 print(" Ship Placement:")
                 print(" help   - displays this message")
                 print(" whoami - displays your username")
+                print(" board  - prints the board and ship availability")
                 print(" place  - places a ship")
                 print("    usage:")
+                print("          ship  coordinate  rotation")
+                print("    place [1-5] [a-j][1-10] [0-1]")
+                print("    example:")
+                print("    place 5 g4 1")
                 print(" remove - removes a ship")
                 print("    usage:")
+                print("           coordinate")
+                print("    remove [a-j][1-10]")
+                print("    example:")
+                print("    remove g4")
                 print(" reset  - clears all ships from the board")
                 print(" random - randomizes the ship placement") 
                 print(" play   - begins the game if the board is setup")               
@@ -82,20 +96,85 @@ class BattleShipMain():
                 print("")
             elif opt == "whoami":
                 print(" username: "+str(this.player))
+            elif opt == "board":
+                print(this.player.get_board().ships())
+                print(ship_string)
             elif opt == "place":
-                #insert_ship
+                if len(sel) < 4:
+                    print(" too few options specified")
+                    continue
+                s = sel[1] #ship
+                try:
+                    c = this.str2coord(sel[2]) #coordinate
+                except ValueError:
+                    print(" Invalid coordinates")
+                    continue
+                #build list of indices for menu check
+                s_arr = ship_string.split("\n")
+                arr_inds = []
+                for i in range(len(s_arr)):
+                    if s_arr[i] != "":
+                        arr_inds.append(s_arr[i][0])
+                if s not in arr_inds:
+                    print(" "+s+" is not a valid selection")  
+                    continue  
+                #inserts ship
+                try:
+                    i = this.player.get_board().conv2int(c)
+                except ValueError:
+                    print(" invalid coordinates")
+                    continue
+                b = this.player.get_board().insert_ship(i, int(sel[3])%2, 5-int(s), s)
+                if not b:
+                    print(" ship could not be placed at "+sel[2])
+                else:
+                    #updates ship menu
+                    ship_string = ""
+                    for i in range(len(arr_inds)):
+                        if s_arr[i][0] != s:
+                            ship_string += s_arr[i]+"\n"
+                if len(ship_string) == 0:
+                    initialized = True
                 print(this.player.get_board().ships())
                 print(ship_string)
             elif opt == "remove":
-                #remove_ship
+                if len(sel) < 2:
+                    print(" too few options specified")
+                    continue
+                try:
+                    c = this.str2coord(sel[1]) #coordinate
+                except ValueError:
+                    print(" Invalid coordinates")
+                    continue
+                ch = this.player.get_board().dat2char(this.player.get_board().conv2int(c),"raw")
+                if ch not in "12345":
+                    print(" There is no ship at "+sel[1]+" to remove")
+                    continue
+                #removes ship
+                s = this.player.get_board().remove_ship(ch)
+                #rebuilds menu
+                s_arr = ship_string.split("\n")
+                print(s_arr)
+                ship_string = ""
+                arr_inds  = []
+                for st in s_arr:
+                    if st != "":
+                        arr_inds.append(st[0])
+                arr_inds.append(ch)
+                arr_inds.sort()
+                for i in arr_inds:
+                    ship_string += msl[int(i)-1]+"\n"
+                
                 print(this.player.get_board().ships())
                 print(ship_string)
+                initialized = False
             elif opt == "random":
                 this.player.get_board().clear_board()
                 this.player.get_board().randomize()
                 initialized = True
                 print(this.player.get_board().ships())
             elif opt == "reset":
+
                 this.player.get_board().clear_board()
                 initialized = False
                 print(this.player.get_board().ships())
@@ -116,7 +195,7 @@ class BattleShipMain():
                 print(" '"+" ".join(sel)+"'")
                 print(" Use command 'help' for help")
         #--loop
-        print("Starting game . . .")
+        print("gameplay not implemented yet")
     
     #--main loop function
     def main_loop(this):
@@ -145,7 +224,7 @@ class BattleShipMain():
                 print(" username: "+str(this.player))
             elif opt == "new":
                 this.game_loop()
-                print("Finished game . . .")
+                print("In main menu")
             elif opt == "clear":
                 clear_screen()
             elif opt == "quit":
