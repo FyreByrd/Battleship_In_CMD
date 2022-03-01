@@ -77,6 +77,10 @@ class Board:
     def radar(this):
         s = this.__str__()
         return s[:447]
+    #--returns just the ship portion of the board as a string
+    def ships(this):
+        s = this.__str__()
+        return s[:27]+s[475:]
     
     #<<<<<Helper Functions>>>>>
     #--returns a more helpful representation of the data in the board selected by arr

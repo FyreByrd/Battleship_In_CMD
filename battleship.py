@@ -28,7 +28,12 @@ def clear_screen():
 class BattleShipMain():
     #--method to get input
     def get_input(this, msg:str, case_sensitive=False, split=False, div=" "):
-        inp = input(" "+msg+"> ")
+        try:
+            inp = input(" "+msg+"> ")
+        except (KeyboardInterrupt, EOFError):
+            print("Program terminated by interrupt or end-of-file.")
+            print("Exiting game . . .")
+            exit()
         inp = str(inp)
         inp = inp.strip()
         if not case_sensitive:
@@ -41,11 +46,9 @@ class BattleShipMain():
         this.opp = HumanPlayer("ai")
         print(" Welcome, "+str(this.player))
         print(" Type 'help' to list available commands")
-    
-    #--main loop function
-    def main_loop(this):
-        playing = True
-        print(" Enter your desired command...")
+    #--loop for running a game of Battleship
+    def game_loop(this):
+        #--setup
         while playing:
             sel = this.get_input("",split=True)
             opt = sel[0]
@@ -53,8 +56,8 @@ class BattleShipMain():
                 print(" Options:")
                 print(" help   - displays this message")
                 print(" whoami - displays your username")
-                #print(" new    - creates new game")
-                #print("       options:")
+                print(" new    - creates new game")
+                #print("    usage:")
                 #print("     -c - choose your setup [TBI]")
                 #print("     -s - salvo mode")
                 #print("     -a - advanced AI")
@@ -67,12 +70,52 @@ class BattleShipMain():
                 print("")
             elif opt == "whoami":
                 print(" username: "+str(this.player))
+            elif opt == "new":
+                this.game_loop()
             elif opt == "clear":
                 clear_screen()
             elif opt == "quit":
                 playing = False
             else:
-                print(" Unrecognize command sequence:")
+                print(" Unrecognized command sequence:")
+                print(" '"+" ".join(sel)+"'")
+                print(" Use command 'help' for help")
+        #--loop
+        pass
+    
+    #--main loop function
+    def main_loop(this):
+        playing = True
+        print(" Enter your desired command...")
+        while playing:
+            sel = this.get_input("",split=True)
+            opt = sel[0]
+            if opt == "help":
+                print(" Options:")
+                print(" help   - displays this message")
+                print(" whoami - displays your username")
+                print(" new    - creates new game")
+                #print("    usage:")
+                #print("     -c - choose your setup [TBI]")
+                #print("     -s - salvo mode")
+                #print("     -a - advanced AI")
+                #print(" test   - benchmarks the AI")
+                #print("       options:")
+                #print("     -a - advanced AI")
+                #print("     -x - pits basic vs. advanced")
+                print(" clear  - unclogs the screen")
+                print(" quit   - exits the program")
+                print("")
+            elif opt == "whoami":
+                print(" username: "+str(this.player))
+            elif opt == "new":
+                this.game_loop()
+            elif opt == "clear":
+                clear_screen()
+            elif opt == "quit":
+                playing = False
+            else:
+                print(" Unrecognized command sequence:")
                 print(" '"+" ".join(sel)+"'")
                 print(" Use command 'help' for help")
 
