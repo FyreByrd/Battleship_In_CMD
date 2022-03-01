@@ -43,45 +43,80 @@ class BattleShipMain():
     def __init__(this):
         pname = this.get_input("Type the name you would like to use ",case_sensitive=True)
         this.player = HumanPlayer(pname)
-        this.opp = HumanPlayer("ai")
+        this.opp = None
         print(" Welcome, "+str(this.player))
         print(" Type 'help' to list available commands")
     #--loop for running a game of Battleship
     def game_loop(this):
         #--setup
-        while playing:
+        initializing = True #loop flag variable
+        initialized = False #check for if board is initialized
+        ship_dict = this.player.get_board().shipdict.ships[0]
+        msl = [ #master ship list
+            "1: "+ship_dict[4]+"\n", #destroyer
+            "2: "+ship_dict[3]+"\n", #submarine
+            "3: "+ship_dict[2]+"\n", #cruiser
+            "4: "+ship_dict[1]+"\n", #battleship
+            "5: "+ship_dict[0]+"\n"  #aircraft carrier
+        ]
+        ship_string = msl[0]+msl[1]+msl[2]+msl[3]+msl[4]
+        print(" Ship Placement:")
+        print(this.player.get_board().ships())
+        print(ship_string)
+        while initializing:
             sel = this.get_input("",split=True)
             opt = sel[0]
             if opt == "help":
-                print(" Options:")
+                print(" Ship Placement:")
                 print(" help   - displays this message")
                 print(" whoami - displays your username")
-                print(" new    - creates new game")
-                #print("    usage:")
-                #print("     -c - choose your setup [TBI]")
-                #print("     -s - salvo mode")
-                #print("     -a - advanced AI")
-                #print(" test   - benchmarks the AI")
-                #print("       options:")
-                #print("     -a - advanced AI")
-                #print("     -x - pits basic vs. advanced")
+                print(" place  - places a ship")
+                print("    usage:")
+                print(" remove - removes a ship")
+                print("    usage:")
+                print(" reset  - clears all ships from the board")
+                print(" random - randomizes the ship placement") 
+                print(" play   - begins the game if the board is setup")               
                 print(" clear  - unclogs the screen")
-                print(" quit   - exits the program")
+                print(" quit   - exits ship placement")
                 print("")
             elif opt == "whoami":
                 print(" username: "+str(this.player))
-            elif opt == "new":
-                this.game_loop()
+            elif opt == "place":
+                #insert_ship
+                print(this.player.get_board().ships())
+                print(ship_string)
+            elif opt == "remove":
+                #remove_ship
+                print(this.player.get_board().ships())
+                print(ship_string)
+            elif opt == "random":
+                this.player.get_board().clear_board()
+                this.player.get_board().randomize()
+                initialized = True
+                print(this.player.get_board().ships())
+            elif opt == "reset":
+                this.player.get_board().clear_board()
+                initialized = False
+                print(this.player.get_board().ships())
+                print(ship_string)
+            elif opt == "play":
+                if initialized:
+                    initializing = False
+                else:
+                    print(" You cannot play until all your ships are placed.")
             elif opt == "clear":
                 clear_screen()
+                print(this.player.get_board().ships())
+                print(ship_string)
             elif opt == "quit":
-                playing = False
+                return "quit in ship placement"
             else:
                 print(" Unrecognized command sequence:")
                 print(" '"+" ".join(sel)+"'")
                 print(" Use command 'help' for help")
         #--loop
-        pass
+        print("Starting game . . .")
     
     #--main loop function
     def main_loop(this):
@@ -91,7 +126,7 @@ class BattleShipMain():
             sel = this.get_input("",split=True)
             opt = sel[0]
             if opt == "help":
-                print(" Options:")
+                print(" Main Menu:")
                 print(" help   - displays this message")
                 print(" whoami - displays your username")
                 print(" new    - creates new game")
@@ -110,6 +145,7 @@ class BattleShipMain():
                 print(" username: "+str(this.player))
             elif opt == "new":
                 this.game_loop()
+                print("Finished game . . .")
             elif opt == "clear":
                 clear_screen()
             elif opt == "quit":
