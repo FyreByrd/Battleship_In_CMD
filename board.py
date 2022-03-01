@@ -111,7 +111,7 @@ class Board:
         elif type(i) == str:
             return 10 * this.rows.index(i[0]) + int(i[1])
         else:
-            raise ValueError
+            raise TypeError
     #--inserts c in board arr at index ind and returns the old value at ind
     def insert(this, c, ind:int, arr:str):
         ind = this.conv2int(ind)

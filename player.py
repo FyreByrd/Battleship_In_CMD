@@ -19,6 +19,10 @@ class Player():
     #--method to take a turn
     def turn(this, opponent):
         return "<Player.turn()> Not Implemented for use."
+    #--method to get board. simply returns board
+    #----will be overridden in WebPlayer class
+    def get_board(this):
+        return this.board
 #--class for basic human player
 class HumanPlayer(Player):
     #--constructor
@@ -26,14 +30,14 @@ class HumanPlayer(Player):
         super().__init__(name)
     #--returns result of calling board.get on opponent's board
     def turn(this, opponent:Player, c:tuple):
-        c = this.board.conv2int(c)
-        s = opponent.board.guess(c)
+        i = this.board.conv2int(c)
+        s = opponent.get_board().guess(i)
         if "Miss" in s:
             this.board.insert("O",c,"radar")
         elif "Hit" in s:
             this.board.insert("X",c,"radar")
         return s
-#--class for a human opponent playing through the internet
+#--interface to play against an opponent through the internet
 #class WebPlayer(HumanPlayer):
 #    pass
 #--base class for an AI player
