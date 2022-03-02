@@ -57,14 +57,8 @@ class BattleShipMain():
         initializing = True #loop flag variable
         initialized = False #check for if board is initialized
         ship_dict = this.player.get_board().shipdict.ships[0]
-        msl = [ #master ship list
-            "1: "+ship_dict[4], #destroyer
-            "2: "+ship_dict[3], #submarine
-            "3: "+ship_dict[2], #cruiser
-            "4: "+ship_dict[1], #battleship
-            "5: "+ship_dict[0]  #aircraft carrier
-        ]
-        ship_string = msl[0]+"\n"+msl[1]+"\n"+msl[2]+"\n"+msl[3]+"\n"+msl[4]
+        #ship menu      destroyer            submarine             cruiser               battleship            aircraft carrier
+        ship_string = " 1: "+ship_dict[4]+"\n 2: "+ship_dict[3]+"\n 3: "+ship_dict[2]+"\n 4: "+ship_dict[1]+"\n 5: "+ship_dict[0]
         print(" Ship Placement:")
         print(this.player.get_board().ships())
         print(ship_string)
@@ -104,6 +98,13 @@ class BattleShipMain():
                     print(" too few options specified")
                     continue
                 s = sel[1] #ship
+                #check if s is an int
+                try:
+                    tmp = int(s)
+                except ValueError:
+                    print(" "+s+" is not a valid selection")
+                    continue
+                #get coordinates
                 try:
                     c = this.str2coord(sel[2]) #coordinate
                 except ValueError:
@@ -114,7 +115,7 @@ class BattleShipMain():
                 arr_inds = []
                 for i in range(len(s_arr)):
                     if s_arr[i] != "":
-                        arr_inds.append(s_arr[i][0])
+                        arr_inds.append(s_arr[i][1])
                 if s not in arr_inds:
                     print(" "+s+" is not a valid selection")  
                     continue  
@@ -129,15 +130,21 @@ class BattleShipMain():
                     print(" ship could not be placed at "+sel[2])
                 else:
                     #updates ship menu
-                    ship_string = ""
-                    for i in range(len(arr_inds)):
-                        if s_arr[i][0] != s:
-                            ship_string += s_arr[i]+"\n"
-                if len(ship_string) == 0:
-                    initialized = True
+                    i = ship_string.index(s)
+                    ship_string = ship_string[:i]+"X"+ship_string[i+1:]
+                #checks to see if all ships have been placed
+                initialized = True
+                for n in "12345":
+                    if n in ship_string:
+                        initialized = False
+                        break
+                #prints view
                 print(this.player.get_board().ships())
                 print(ship_string)
+                if initialized:
+                    print(" All ships have been placed.")
             elif opt == "remove":
+                #initial error checking
                 if len(sel) < 2:
                     print(" too few options specified")
                     continue
@@ -153,30 +160,34 @@ class BattleShipMain():
                 #removes ship
                 s = this.player.get_board().remove_ship(ch)
                 #rebuilds menu
-                s_arr = ship_string.split("\n")
-                print(s_arr)
-                ship_string = ""
-                arr_inds  = []
-                for st in s_arr:
-                    if st != "":
-                        arr_inds.append(st[0])
-                arr_inds.append(ch)
-                arr_inds.sort()
-                for i in arr_inds:
-                    ship_string += msl[int(i)-1]+"\n"
-                
+                i = ship_string.index(s[9:])
+                ship_string = ship_string[:i-3]+ch+ship_string[i-2:]
+                #prints view
                 print(this.player.get_board().ships())
                 print(ship_string)
+                print(" "+s+" at "+sel[1])
                 initialized = False
             elif opt == "random":
                 this.player.get_board().clear_board()
                 this.player.get_board().randomize()
                 initialized = True
+                #rebuilds menu
+                for n in "12345":
+                    try:
+                        i = ship_string.index(n)
+                        ship_string = ship_string[:i]+"X"+ship_string[i+1:]
+                    except ValueError:
+                        continue
+                #print view
                 print(this.player.get_board().ships())
+                print(ship_string)
+                print(" All ships have been placed.")
             elif opt == "reset":
-
                 this.player.get_board().clear_board()
                 initialized = False
+                #rebuilds menu
+                ship_string = " 1: "+ship_dict[4]+"\n 2: "+ship_dict[3]+"\n 3: "+ship_dict[2]+"\n 4: "+ship_dict[1]+"\n 5: "+ship_dict[0]
+                #prints view
                 print(this.player.get_board().ships())
                 print(ship_string)
             elif opt == "play":
@@ -209,14 +220,6 @@ class BattleShipMain():
                 print(" help   - displays this message")
                 print(" whoami - displays your username")
                 print(" new    - creates new game")
-                #print("    usage:")
-                #print("     -c - choose your setup [TBI]")
-                #print("     -s - salvo mode")
-                #print("     -a - advanced AI")
-                #print(" test   - benchmarks the AI")
-                #print("       options:")
-                #print("     -a - advanced AI")
-                #print("     -x - pits basic vs. advanced")
                 print(" clear  - unclogs the screen")
                 print(" quit   - exits the program")
                 print("")
