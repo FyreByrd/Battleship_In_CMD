@@ -1,2 +1,6 @@
 temp_test_ground.py
 test.txt
+__pycache__
+benchmark.py
+testbench.txt
+results.txt
