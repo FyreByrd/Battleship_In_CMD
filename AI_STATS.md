@@ -2,8 +2,8 @@
 ## Solo
 A test of how the AI performs on randomly generated boards.
 ### StupidAI
-| Iterations: | 100,000 |
-| Time:       | 1:19.93 |
+Iterations: 100,000
+Time:       1:19.93
 |             | Mean  | Range    |
 |---          |:-:    |:-:       |
 | First Sunk  | 50.53 | [2, 94]  |
