@@ -12,3 +12,5 @@ The project as it is is still incomplete. I am currently working on adding and o
 This is my first project on GitHub, and my first "professional" (ie. not for school) project.
 
 Suggestions and criticisms (preferably constructive) are welcome.
+
+I hope to continue to add functionality continuously throughout the coming weeks. You can check my progress in the Refactor branch. I will be pushing new code to that branch every few days/weeks until I am finished.
