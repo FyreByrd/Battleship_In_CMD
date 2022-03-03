@@ -38,9 +38,13 @@ class HumanPlayer(Player):
         elif "Hit" in s:
             this.board.insert("X",c,"radar")
         return s
+
+#VVV#NOT IMPLEMENTED#VVV#
 #--interface to play against an opponent through the internet
 class WebPlayer(HumanPlayer):
     pass
+#^^^#NOT IMPLEMENTED#^^^#
+
 #--base class for an AI player
 class AIPlayer(Player):
     def __init__(this, name:str="AI"):
@@ -66,9 +70,12 @@ class StupidAI(AIPlayer):
                 if "Sunk" in t[0]:
                     this.sunkcount += 1
                 return t
+
+#VVV#NOT IMPLEMENTED#VVV#
 #--AI that uses a basic 2-stage Hunt/Target algorithm
 class BasicAI(AIPlayer):
     pass
 #--AI that uses a Probability Density Function to aid a 2-stage Hunt/Target algorithm
 class AdvancedAI(AIPlayer):
     pass
+#^^^#NOT IMPLEMENTED#^^^#
