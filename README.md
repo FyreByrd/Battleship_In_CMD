@@ -1,5 +1,5 @@
 # Battleship_In_CMD
-## I am currently in the process of refactoring the entire project so that it runs better and is more easily decipherable
+## This is the legacy version
 A version of the classic game "Battleship" that is playable in the command line.
 
 The purpose of this project is to test my coding abilities and learn Python
