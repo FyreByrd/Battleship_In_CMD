@@ -211,7 +211,7 @@ class BattleShipMain():
             ("X", ": Normal [Under Development]", BasicAI),
             ("X", ": Hard   [Under Development]", AdvancedAI),
             ("X", ": Web    [Under Development]", WebPlayer)]
-        opp_sel = None
+        opp_sel = StupidAI
         #----opponent selection
         while selecting:
             print(" Choose an opponent:")
@@ -227,7 +227,6 @@ class BattleShipMain():
                 print(" Invalid opponent selection.")    
         order = 0#randint(0,1)
         opp = opp_sel()
-        opp.__init__()
         turn = order
         t = " "
         print(opp.name)
@@ -274,15 +273,16 @@ class BattleShipMain():
                         continue
                     try:
                         c = this.str2coord(sel[1]) #coordinate
+                        i = this.player.get_board().conv2int(c)
                     except ValueError:
                         print(" Invalid coordinates")
                         continue
-                    t = opp.get_board().guess(c)
+                    t = opp.get_board().guess(i)
                     results[order] = " You-> "+str(t[1])+": "+str(t[0])
                     if t[0] != "Already guessed.":
                         turn += 1
                         n = "~"
-                        if "Hit" in t:
+                        if "Hit" in t[0]:
                             n = "!"
                         this.player.get_board().insert(n, this.player.get_board().conv2int(c), "radar")
                         player_turn = False
