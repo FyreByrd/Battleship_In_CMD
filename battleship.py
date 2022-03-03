@@ -1,405 +1,338 @@
-import os
-from random import randint, choice
-import battleai as ai
-import misc
-from board import Board
-from ships import Ships
-from analysis import analyze
-from time import time
+#battleship.py: contains logic to run the game
+#author: Aidan Jones
 
-welcome = """
+#<<<<<Import Statements>>>>>
+from player import HumanPlayer, StupidAI, BasicAI, AdvancedAI, WebPlayer
+import os
+
+#<<<<<Miscellaneous Variables, Classes, and Functions>>>>>
+#--welcome message/logo
+version_no = "2.0.0"
+version = "_"*(15-len(version_no))+str(version_no)
+welcome_string = """
  _________________________________________________________
      ____                                __                    
      /   )                  /          /    ) /     ,        
-    /__ /    __  _/_  _/_  /   __      \     /__       __ 
+    /__ /    __  _/_  _/_  /   __      \     /__      ___ 
    /    )  /   ) /    /   /  /___)      \   /   ) /  /   )
   /____/  (___( (    (   /  (___    (____/ /   / /  /___/ 
                                                    /      
                                                   / 
- _____command_line________________________________________      
+ _____command_line________________________"""+version+"""_      
 """
-class BattleShipMain:
-    def clear(self):
-        os.system('cls' if os.name=='nt' else 'clear')
-    def rand_c(self):
-        return 2 * randint(0,99) + randint(0,1)
-    def get_input(self, msg, case=False, split=False, div=" "):
-        inp = input(" "+str(msg)+": ")
+#--clears the screen of the CLI
+def clear_screen():
+    os.system('cls' if os.name=='nt' else 'clear')
+#--contains methods to run the program
+class BattleShipMain():
+    #--method to get input
+    def get_input(this, msg:str="", case_sensitive=False, split=False, div=" "):
+        try:
+            inp = input(" "+msg+"> ")
+        except (KeyboardInterrupt, EOFError):
+            print("Program terminated by interrupt or end-of-file.")
+            print("Exiting game . . .")
+            exit()
         inp = str(inp)
-        if not case:
+        inp = inp.strip()
+        if not case_sensitive:
             inp = inp.lower()
-        if split:
-            return inp.split(div)
-        else:
-            return inp.strip()
-    def __init__(self):
-        self.clear()
-        print(welcome)
-        self.player = self.get_input("type the name you would like to use",case=True)
-        print(" Welcome, "+self.player)
-        print(" type 'help' to list available commands")
-        self.state = misc.StateManager("Main Menu")
-        ships = Ships()
-        self.ship_types = {"tug":ships.tugh, "tug-alt":ships.tugv,"sub":ships.subh, "sub-alt":ships.subv,"bat":ships.bath, 
-            "bat-alt":ships.batv,"des":ships.desh, "des-alt":ships.desv,"air":ships.airh, "air-alt":ships.airv}
-        self.ship_ids = {"tug":"t", "tug-alt":"t","sub":"s", "sub-alt":"s","bat":"b", 
-            "bat-alt":"b","des":"d", "des-alt":"d","air":"a", "air-alt":"a"}
-        self.ship_opts = ["air","des","bat","sub","tug"]
-    def random_board(self, board):
-        c = self.rand_c()
-        for s in self.ship_opts:
-            while True:
-                if c % 2 == 1:
-                    d = 1
-                    coords = (c - 1)//2
-                    ship = self.ship_types[s]
-                else:
-                    d = 0
-                    coords = c//2
-                    ship = self.ship_types[s+"-alt"]
-                coords = board.coords_from_rawcoord(coords)
-                if "success" not in board.insert_ship(coords,ship,self.ship_ids[s], d):
-                    c = self.rand_c()
-                else:
-                    break
-    def test_winner(self, p1, p2, scman):
-        return True if (scman.get_score(p1) > 4 or scman.get_score(p2) > 4) else False
-    def get_winner(self, p1, p2, scman):
-        if self.test_winner(p1,p2,scman):
-            return p1 if scman.get_score(p1) > scman.get_score(p2) else p2
-        else:
-            return None
-    def test_ai(self, com):
-        num = int(self.get_input("enter the number of tests you would like to run"))
-        t_0 = time()
-        advanced = True if "a" in com else False
-        sink_1 = []
-        sink_2 = []
-        sink_3 = []
-        sink_4 = []
-        turns_taken = []
-        continuing = True
-        intervals = [1,10,100,1000,10000,100000,1000000]
-        interval_vals = {1:1,10:10,100:10,1000:100,10000:100,100000:1000,1000000:5000}
-        update_interval = 1
-        last_printed = 0
-        for i in range(len(intervals)):
-            if num >= intervals[i]:
-                update_interval = interval_vals[intervals[i]]
-        for i in range(num):
-            if not continuing:
-                break
-            sinks = 0
-            turn = 0
-            board = Board()
-            radar = Board()
-            vals = []
-            #print(" Generating Board")
-            self.random_board(board)
-            tester = ai.AdvancedAI(radar,board) if advanced else ai.BasicAI(radar,board)
-            #print(" Commencing Test "+str(i))
-            while sinks < 5:
+        return inp.split(div) if split else inp  
+    #--constructor
+    def __init__(this):
+        pname = this.get_input("Type the name you would like to use ",case_sensitive=True)
+        this.player = HumanPlayer(pname)
+        this.opp = None
+        print(" Welcome, "+str(this.player))
+        print(" Type 'help' to list available commands")
+    #--converts a string to a coordinate
+    def str2coord(this, s:str):
+        if len(s) < 2:
+            raise ValueError
+        return (str(s[0]),int(s[1:]) -1)
+    #--loop for running a game of Battleship
+    def game_loop(this):
+        #--setup
+        initializing = True #loop flag variable
+        initialized = False #check for if board is initialized
+        ship_dict = this.player.get_board().shipdict.ships[0]
+        #ship menu      destroyer            submarine             cruiser               battleship            aircraft carrier
+        ship_string = " 1: "+ship_dict[4]+"\n 2: "+ship_dict[3]+"\n 3: "+ship_dict[2]+"\n 4: "+ship_dict[1]+"\n 5: "+ship_dict[0]
+        print(" Ship Placement:")
+        print(this.player.get_board().ships())
+        print(ship_string)
+        while initializing:
+            sel = this.get_input("",split=True)
+            opt = sel[0]
+            if opt == "help":
+                print(" Ship Placement:")
+                print(" help   - displays this message")
+                print(" whoami - displays your username")
+                print(" board  - prints the board and ship availability")
+                print(" place  - places a ship")
+                print("    usage:")
+                print("          ship  coordinate  rotation")
+                print("    place [1-5] [a-j][1-10] [0-1]")
+                print("    example:")
+                print("    place 5 g4 1")
+                print(" remove - removes a ship")
+                print("    usage:")
+                print("           coordinate")
+                print("    remove [a-j][1-10]")
+                print("    example:")
+                print("    remove g4")
+                print(" reset  - clears all ships from the board")
+                print(" random - randomizes the ship placement") 
+                print(" play   - begins the game if the board is setup")               
+                print(" clear  - unclogs the screen")
+                print(" quit   - exits ship placement")
+                print("")
+            elif opt == "whoami":
+                print(" username: "+str(this.player))
+            elif opt == "board":
+                print(this.player.get_board().ships())
+                print(ship_string)
+            elif opt == "place":
+                if len(sel) < 4:
+                    print(" too few options specified")
+                    continue
+                s = sel[1] #ship
+                #check if s is an int
                 try:
-                    turn += 1
-                    val = tester.guess(1,True)
-                    vals.append(val)
-                    if "Sunk" in val:
-                        sinks += 1
-                        if sinks == 1:
-                            #print(" 1st: "+str(turn))
-                            sink_1.append(turn)
-                        elif sinks == 2:
-                            #print(" 2nd: "+str(turn))
-                            sink_2.append(turn)
-                        elif sinks == 3:
-                            #print(" 3rd: "+str(turn))
-                            sink_3.append(turn)
-                        elif sinks == 4:
-                            #print(" 4th: "+str(turn))
-                            sink_4.append(turn)
-                except KeyboardInterrupt:
-                    continuing = False
-                    print(" Guesses Until Interrupt:"+str(turn))
-                    for v in vals:
-                        print(val)
-                    if advanced:
-                        tester.print_cloud(tester.pcloud)
-                    print(tester.opp.display_board())
+                    tmp = int(s)
+                except ValueError:
+                    print(" "+s+" is not a valid selection")
+                    continue
+                #get coordinates
+                try:
+                    c = this.str2coord(sel[2]) #coordinate
+                except ValueError:
+                    print(" Invalid coordinates")
+                    continue
+                #build list of indices for menu check
+                s_arr = ship_string.split("\n")
+                arr_inds = []
+                for i in range(len(s_arr)):
+                    if s_arr[i] != "":
+                        arr_inds.append(s_arr[i][1])
+                if s not in arr_inds:
+                    print(" "+s+" is not a valid selection")  
+                    continue  
+                #inserts ship
+                try:
+                    i = this.player.get_board().conv2int(c)
+                except ValueError:
+                    print(" invalid coordinates")
+                    continue
+                b = this.player.get_board().insert_ship(i, int(sel[3])%2, 5-int(s), s)
+                if not b:
+                    print(" ship could not be placed at "+sel[2])
+                else:
+                    #updates ship menu
+                    i = ship_string.index(s)
+                    ship_string = ship_string[:i]+"X"+ship_string[i+1:]
+                #checks to see if all ships have been placed
+                initialized = True
+                for n in "12345":
+                    if n in ship_string:
+                        initialized = False
+                        break
+                #prints view
+                print(this.player.get_board().ships())
+                print(ship_string)
+                if initialized:
+                    print(" All ships have been placed.")
+            elif opt == "remove":
+                #initial error checking
+                if len(sel) < 2:
+                    print(" too few options specified")
+                    continue
+                try:
+                    c = this.str2coord(sel[1]) #coordinate
+                except ValueError:
+                    print(" Invalid coordinates")
+                    continue
+                ch = this.player.get_board().dat2char(this.player.get_board().conv2int(c),"raw")
+                if ch not in "12345":
+                    print(" There is no ship at "+sel[1]+" to remove")
+                    continue
+                #removes ship
+                s = this.player.get_board().remove_ship(ch)
+                #rebuilds menu
+                i = ship_string.index(s[9:])
+                ship_string = ship_string[:i-3]+ch+ship_string[i-2:]
+                #prints view
+                print(this.player.get_board().ships())
+                print(ship_string)
+                print(" "+s+" at "+sel[1])
+                initialized = False
+            elif opt == "random":
+                this.player.get_board().clear_board()
+                this.player.get_board().randomize()
+                initialized = True
+                #rebuilds menu
+                for n in "12345":
+                    try:
+                        i = ship_string.index(n)
+                        ship_string = ship_string[:i]+"X"+ship_string[i+1:]
+                    except ValueError:
+                        continue
+                #print view
+                print(this.player.get_board().ships())
+                print(ship_string)
+                print(" All ships have been placed.")
+            elif opt == "reset":
+                this.player.get_board().clear_board()
+                initialized = False
+                #rebuilds menu
+                ship_string = " 1: "+ship_dict[4]+"\n 2: "+ship_dict[3]+"\n 3: "+ship_dict[2]+"\n 4: "+ship_dict[1]+"\n 5: "+ship_dict[0]
+                #prints view
+                print(this.player.get_board().ships())
+                print(ship_string)
+            elif opt == "play":
+                if initialized:
+                    initializing = False
+                else:
+                    print(" You cannot play until all your ships are placed.")
+            elif opt == "clear":
+                clear_screen()
+                print(this.player.get_board().ships())
+                print(ship_string)
+            elif opt == "quit":
+                return "quit in ship placement"
+            else:
+                print(" Unrecognized command sequence:")
+                print(" '"+" ".join(sel)+"'")
+                print(" Use command 'help' for help")
+        #--initialization of opponent and turn order
+        selecting = True
+        opponent_menu = [
+            ("1", ": Easy", StupidAI),
+            ("X", ": Normal [Under Development]", BasicAI),
+            ("X", ": Hard   [Under Development]", AdvancedAI),
+            ("X", ": Web    [Under Development]", WebPlayer)]
+        opp_sel = None
+        #----opponent selection
+        while selecting:
+            print(" Choose an opponent:")
+            for o in opponent_menu:
+                print(" "+o[0]+o[1])
+            s = this.get_input()
+            for o in opponent_menu:
+                if s == o[0]:
+                    opp_sel = o[2]
+                    selecting = False
                     break
-                
-            #print(" Guesses: "+str(turn))
-            #print(" Test "+str(i)+" Complete")
-            if i+1 > last_printed + update_interval:
-                print(i)
-                last_printed = i
-            turns_taken.append(turn)
-        print(" Tests: "+str(num))
-        print(analyze(sink_1, "Guesses to first sunk ship"))
-        print(analyze(sink_2, "Guesses to second sunk ship"))
-        print(analyze(sink_3, "Guesses to third sunk ship"))
-        print(analyze(sink_4, "Guesses to fourth sunk ship"))
-        print(analyze(turns_taken, "Total Guesses"))
-        print(" Time taken: "+str(time() - t_0))
-        self.state.set("Main Menu")
-        print("\n\n Main Menu")
-    def matchup_ai(self):
-        num = int(self.get_input("enter the number of tests you would like to run"))
-        t_0 = time()
-        results = []
-        lengths = []
-        aname = "advanced"
-        bname = "basic"
-        for i in range(num):
-            aradar = Board()
-            aboard = Board()
-            bradar = Board()
-            bboard = Board()
-            aia = ai.AdvancedAI(aradar,bboard)
-            aib = ai.BasicAI(bradar,aboard)
-            self.random_board(aboard)
-            self.random_board(bboard)
-            scman = misc.ScoreManager(aname,bname)
-            winner = 0
-            turn = 0
-            starting = randint(0,1)
-            while not self.test_winner(aname,bname,scman):
+            if selecting:
+                print(" Invalid opponent selection.")    
+        order = 0#randint(0,1)
+        opp = opp_sel()
+        opp.__init__()
+        turn = order
+        t = " "
+        print(opp.name)
+        #--loop
+        playing = True #loop flag variable
+        results = ["",""]
+        while playing:
+            #Opponent's turn
+            if turn % 2 == 1:
+                t = opp.turn(this.player)
+                results[1-order] = " "+opp.name+"-> "+str(t[1])+": "+str(t[0])
+            #checks if game is over
+            if t[0] == "Gameover.":
+                playing = False
                 turn += 1
-                t = turn % 2
-                if t == starting:
-                    val = aia.guess(1,True)
-                    if "Sunk" in val:
-                        scman.inc_score(aname)
-                else:
-                    val = aib.guess()
-                    if "Sunk" in val:
-                        scman.inc_score(bname)
-            else:
-                results.append(1 if self.get_winner(aname,bname,scman) == aname else 0)
-                lengths.append(turn)
-        print(analyze(results, "Wins"))
-        print(analyze(lengths,"Average Game Length"))
-        print(" Time taken: "+str(time() - t_0))
-        self.state.set("Main Menu")
-        print("\n\n Main Menu")
-    def print_display(self,radar,board):
-        print(" Radar:")
-        print(radar.display_board())
-        print(" Ships:")
-        print(board.display_board())
-    def loop(self):
-        while True:
-            if self.state.get() == "Main Menu":
-                com = self.get_input("")
-                if "help" in com:
-                    print("    Available Commands:")
-                    print(" help   - lists available commands")
-                    print(" exit   - exits the program")
-                    print(" whoami - displays your username")
-                    print(" new    - creates new game")
-                    print("       options:")
-                    print("     -c - choose your setup [TBI]")
-                    print("     -s - salvo mode")
-                    print("     -a - advanced AI")
-                    print(" test   - benchmarks the AI")
-                    print("       options:")
-                    print("     -a - advanced AI")
-                    print("     -x - pits basic vs. advanced")
-                    print(" clear  - unclogs the screen")
-                elif "exit" in com:
-                    print(" Exiting Program ...")
-                    self.clear()
-                    exit()
-                elif "whoami" in com:
-                    print(" username: "+self.player)
-                elif "new" in com:
-                    g = 0
-                    com = com.removeprefix("new")
-                    print(" Starting new game ...")
-                    ai_name = "P2 [AI]"
-                    scores = misc.ScoreManager(self.player,ai_name)
-                    player_board = Board()
-                    player_radar = Board()
-                    ai_board = Board()
-                    ai_radar = Board()
-                    if "s" in com:
-                        max_ai_guesses = 5
-                        max_guesses = 5
-                        game_mode = "Salvo"
-                    else:
-                        max_ai_guesses = 1
-                        max_guesses = 1
-                        game_mode = "Standard"
-                    if "a" in com:
-                        ai_level = "advanced"
-                        ai_player = ai.AdvancedAI(ai_radar, player_board)
-                    else:
-                        ai_level = "basic"
-                        ai_player = ai.BasicAI(ai_radar, player_board)
-                    print(" Setting up AI board ...")
-                    self.random_board(ai_board)
-                    print(" Setting up your board ...")
-                    if "c" in com:
-                        self.state.set("Placing")    
-                    else:
-                        self.state.set("Game")
-                        self.random_board(player_board)    
-                    starting = randint(0,1)
-                    turn = 1
-                    if starting == 0:
-                        print(" It's your turn")
-                        self.print_display(player_radar,player_board)
-                elif "test" in com:
-                    if "x" in com:
-                        self.matchup_ai()
-                    else:
-                        self.test_ai(com)
-                elif "clear" in com:
-                    self.clear()
-                    print(" Main Menu")
-                else:
-                    print(" "+str(com)+" is an invalid or unrecognized command")
-                    print(" type 'help' to list available commands")
-            elif self.state.get() == "Placing":
-                print(" This feature is not yet implemented")
-                com = self.get_input("")
-                if "help" in com:
-                    print("    Available Commands:")
-                    print(" help   - lists available commands")
-                    print(" exit   - exits the program")
-                    print(" whoami - displays your username")
-                elif "exit" in com:
-                    print(" Returning to Menu ...")
-                    self.clear()
-                    self.state.set("Main Menu")
-                    print(welcome)
-                    print(" "+self.state.get())
-                elif "whoami" in com:
-                    print(" username: "+player)
-                else:
-                    print(" "+str(com)+" is an invalid or unrecognized command")
-                    print(" type 'help' to list available commands")
-            elif self.state.get() == "Game":
-                #AI turn code
-                t = turn % 2
-                if t == starting:
-                    print(" It is the AI's turn")
-                    turn += 1
-                    val = ai_player.guess(max_ai_guesses)
-                    print(val)
-                    if "Sunk" in val:
-                        scores.inc_score(ai_name,1)
-                        if game_mode == "Salvo":
-                            max_guesses -= 1
-                        if scores.get_score(ai_name) >= 5:
-                            print(" You lost!")
-                            print(" Your Ships:")
-                            print(player_board.display_board())
-                            print(" "+ai_name+"'s Ships:")
-                            print(ai_board.display_board())
-                            print(" Turns Played: "+str(turn))
-                            print(" Game Mode: "+game_mode)
-                            print(" AI Level: "+ai_level)
-                            print(" Final Scores:")
-                            print(" "+self.player+": "+str(scores.get_score(self.player)))
-                            print(" "+ai_name+": "+str(scores.get_score(ai_name)))
-                            self.state.set("Main Menu")
-                            print("\n\n\n Main Menu")
-                            continue
-                    print(" It's your turn")
-                    print(" Radar:")
-                    print(player_radar.display_board())
-                    print(" Ships:")
-                    print(player_board.display_board())
-                    g = 0
-                com = self.get_input("")
-                if "help" in com:
-                    print("    Available Commands:")
-                    print(" help   - lists available commands")
-                    print(" exit   - exits the game")
-                    print(" board  - displays the board")
-                    print(" guess [row, col] - returns status of coordinates given")
-                    print(" whoami - displays your username")
-                    print(" info   - displays information about current game")
-                    print(" pass   - skips your turn (useful for test the AI turn-by-turn)")
-                elif "exit" in com:
-                    print(" Exiting Game ...")
-                    self.clear()
-                    self.state.set("Main Menu")
-                    print(welcome)
-                    print(" "+self.state.get())
-                elif "board" in com:
-                    self.print_display(player_radar,player_board)
-                elif "guess" in com:
-                    if com == "guess":
-                        print(" guess cannot be used without parameters")
+                continue
+            print(this.player.get_board())
+            if results[0] != "":
+                print(results[0])
+            if results[1] != "":
+                print(results[1])
+            player_turn = True
+            while player_turn:
+                sel = this.get_input("",split=True)
+                print("")
+                opt = sel[0]
+                if opt == "help":
+                    print("Options:")
+                    print(" help  - displays this message")
+                    print(" guess - makes a guess")
+                    print("    usage:")
+                    print("    guess [a-j][1-10]")
+                    print("    example:")
+                    print("    guess g4")
+                    print(" board - prints the entire board")
+                    print(" radar - prints just the radar portion of your board")
+                    print(" clear - unclogs the screen")
+                    print(" quit  - exits the program")
+                    print("")
+                elif opt == "guess":
+                    #initial error checking
+                    if len(sel) < 2:
+                        print(" too few options specified")
                         continue
-                    com = com.removeprefix("guess")
-                    valid_characters = {"a","b","c","d","e","f","g","h","i","j",}
-                    valid_numbers = {"0","1","2","3","4","5","6","7","8","9"}
-                    row = set()
-                    col = set()
-                    for c in com:
-                        row.add(c)
-                        col.add(c)
-                    row = row.intersection(valid_characters)
-                    col = col.intersection(valid_numbers)
-                    if len(row) == 0 or len(col) == 0:
-                        print(" guess requires two parameters, one in 0-9 and one in a-j")
+                    try:
+                        c = this.str2coord(sel[1]) #coordinate
+                    except ValueError:
+                        print(" Invalid coordinates")
                         continue
-                    for x in row:
-                        row = x
-                        break
-                    for x in col:
-                        col = x
-                        break
-                    print(" You guessed: "+str(row).upper()+" "+str(col))
-                    coords = ai_board.coords_from_input(row,col)
-                    val = ai_board.guess(coords, player_radar)
-                    print(val)
-                    if "again" not in val:
-                        if "Sunk" in val:
-                            scores.inc_score(self.player, 1)
-                            if game_mode == "Salvo":
-                                max_ai_guesses -= 1
-                            if scores.get_score(self.player) >= 5:
-                                print(" Radar:")
-                                print(player_radar.display_board())
-                                print(" Ships:")
-                                print(player_board.display_board())
-                                print(" Turns Played: "+str(turn))
-                                print(" Game Mode: "+game_mode)
-                                print(" AI Level: "+ai_level)
-                                print(" Final Scores:")
-                                print(" "+self.player+": "+str(scores.get_score(self.player)))
-                                print(" "+ai_name+": "+str(scores.get_score(ai_name)))
-                                print(" Congratulations, "+self.player+"! You Won!")
-                                self.state.set("Main Menu")
-                                print("\n\n\n Main Menu")
-                                continue
-                        g += 1
-                        if g >= max_guesses:
-                            turn += 1                           
-                    self.print_display(player_radar,player_board)
-                elif "whoami" in com:
-                    print(" username: "+self.player)
-                elif "info" in com:
-                    print(" Turn: "+str(turn))
-                    print(" Game Mode: "+game_mode)
-                    print(" AI Level: "+ai_level)
-                    print(" Scores:")
-                    print(" "+self.player+": "+str(scores.get_score(self.player)))
-                    print(" "+ai_name+": "+str(scores.get_score(ai_name)))
-                elif "pass" in com:
-                    turn += 1
+                    t = opp.get_board().guess(c)
+                    results[order] = " You-> "+str(t[1])+": "+str(t[0])
+                    if t[0] != "Already guessed.":
+                        turn += 1
+                        n = "~"
+                        if "Hit" in t:
+                            n = "!"
+                        this.player.get_board().insert(n, this.player.get_board().conv2int(c), "radar")
+                        player_turn = False
+                elif opt == "board":
+                    print(this.player.get_board())
+                elif opt == "radar":
+                    print(this.player.get_board().radar())
+                elif opt == "clear":
+                    clear_screen()
+                elif opt == "quit":
+                    playing = False
+                    player_turn = False
                 else:
-                    print(" "+str(com)+" is an invalid or unrecognized command")
-                    print(" type 'help' to list available commands")
+                    print(" Unrecognized command sequence:")
+                    print(" '"+" ".join(sel)+"'")
+                    print(" Use command 'help' for help")
+    
+    #--main loop function
+    def main_loop(this):
+        playing = True
+        print(" Enter your desired command...")
+        while playing:
+            sel = this.get_input("",split=True)
+            opt = sel[0]
+            if opt == "help":
+                print(" Main Menu:")
+                print(" help   - displays this message")
+                print(" whoami - displays your username")
+                print(" new    - creates new game")
+                print(" clear  - unclogs the screen")
+                print(" quit   - exits the program")
+                print("")
+            elif opt == "whoami":
+                print(" username: "+str(this.player))
+            elif opt == "new":
+                this.game_loop()
+                print("In main menu")
+            elif opt == "clear":
+                clear_screen()
+            elif opt == "quit":
+                playing = False
             else:
-                print(" Unknown state error")
-                print(" "+str(self.state.get())+" is an invalid state")
-                self.state.set("Main Menu")
-                print("\n Main Menu")
-if __name__ == '__main__':
+                print(" Unrecognized command sequence:")
+                print(" '"+" ".join(sel)+"'")
+                print(" Use command 'help' for help")
+
+#--Main method
+if __name__=="__main__":
+    clear_screen()
+    print(welcome_string)
     game = BattleShipMain()
-    game.loop()
-    exit()
+    game.main_loop()
+    
