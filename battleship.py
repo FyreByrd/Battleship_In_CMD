@@ -2,8 +2,7 @@
 #author: Aidan Jones
 
 #<<<<<Import Statements>>>>>
-from player import HumanPlayer
-from board import Board
+from player import HumanPlayer, StupidAI, BasicAI, AdvancedAI, WebPlayer
 import os
 
 #<<<<<Miscellaneous Variables, Classes, and Functions>>>>>
@@ -27,7 +26,7 @@ def clear_screen():
 #--contains methods to run the program
 class BattleShipMain():
     #--method to get input
-    def get_input(this, msg:str, case_sensitive=False, split=False, div=" "):
+    def get_input(this, msg:str="", case_sensitive=False, split=False, div=" "):
         try:
             inp = input(" "+msg+"> ")
         except (KeyboardInterrupt, EOFError):
@@ -205,8 +204,101 @@ class BattleShipMain():
                 print(" Unrecognized command sequence:")
                 print(" '"+" ".join(sel)+"'")
                 print(" Use command 'help' for help")
+        #--initialization of opponent and turn order
+        selecting = True
+        opponent_menu = [
+            ("1", ": Easy", StupidAI),
+            ("X", ": Normal [Under Development]", BasicAI),
+            ("X", ": Hard   [Under Development]", AdvancedAI),
+            ("X", ": Web    [Under Development]", WebPlayer)]
+        opp_sel = None
+        #----opponent selection
+        while selecting:
+            print(" Choose an opponent:")
+            for o in opponent_menu:
+                print(" "+o[0]+o[1])
+            s = this.get_input()
+            for o in opponent_menu:
+                if s == o[0]:
+                    opp_sel = o[2]
+                    selecting = False
+                    break
+            if selecting:
+                print(" Invalid opponent selection.")    
+        order = 0#randint(0,1)
+        opp = opp_sel()
+        opp.__init__()
+        turn = order
+        t = " "
+        print(opp.name)
         #--loop
-        print("gameplay not implemented yet")
+        playing = True #loop flag variable
+        results = ["",""]
+        while playing:
+            #Opponent's turn
+            if turn % 2 == 1:
+                t = opp.turn(this.player)
+                results[1-order] = " "+opp.name+"-> "+str(t[1])+": "+str(t[0])
+            #checks if game is over
+            if t[0] == "Gameover.":
+                playing = False
+                turn += 1
+                continue
+            print(this.player.get_board())
+            if results[0] != "":
+                print(results[0])
+            if results[1] != "":
+                print(results[1])
+            player_turn = True
+            while player_turn:
+                sel = this.get_input("",split=True)
+                print("")
+                opt = sel[0]
+                if opt == "help":
+                    print("Options:")
+                    print(" help  - displays this message")
+                    print(" guess - makes a guess")
+                    print("    usage:")
+                    print("    guess [a-j][1-10]")
+                    print("    example:")
+                    print("    guess g4")
+                    print(" board - prints the entire board")
+                    print(" radar - prints just the radar portion of your board")
+                    print(" clear - unclogs the screen")
+                    print(" quit  - exits the program")
+                    print("")
+                elif opt == "guess":
+                    #initial error checking
+                    if len(sel) < 2:
+                        print(" too few options specified")
+                        continue
+                    try:
+                        c = this.str2coord(sel[1]) #coordinate
+                    except ValueError:
+                        print(" Invalid coordinates")
+                        continue
+                    t = opp.get_board().guess(c)
+                    results[order] = " You-> "+str(t[1])+": "+str(t[0])
+                    if t[0] != "Already guessed.":
+                        turn += 1
+                        n = "~"
+                        if "Hit" in t:
+                            n = "!"
+                        this.player.get_board().insert(n, this.player.get_board().conv2int(c), "radar")
+                        player_turn = False
+                elif opt == "board":
+                    print(this.player.get_board())
+                elif opt == "radar":
+                    print(this.player.get_board().radar())
+                elif opt == "clear":
+                    clear_screen()
+                elif opt == "quit":
+                    playing = False
+                    player_turn = False
+                else:
+                    print(" Unrecognized command sequence:")
+                    print(" '"+" ".join(sel)+"'")
+                    print(" Use command 'help' for help")
     
     #--main loop function
     def main_loop(this):

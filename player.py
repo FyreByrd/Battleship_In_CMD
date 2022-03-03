@@ -4,6 +4,7 @@
 
 #<<<<<Import Statements>>>>>
 from board import Board
+from random import randrange as rand
 
 #<<<<<Class Definitions>>>>>
 #--base class for player
@@ -38,14 +39,33 @@ class HumanPlayer(Player):
             this.board.insert("X",c,"radar")
         return s
 #--interface to play against an opponent through the internet
-#class WebPlayer(HumanPlayer):
-#    pass
+class WebPlayer(HumanPlayer):
+    pass
 #--base class for an AI player
 class AIPlayer(Player):
-    pass
+    def __init__(this, name:str="AI"):
+        super().__init__(name)
+        this.board.randomize()
 #--AI that uses a PRNG to exhaust the board
 class StupidAI(AIPlayer):
-    pass
+    def __init__(this, name:str="AI (Easy)"):
+        super().__init__(name)
+        this.sunkcount = 0
+        this.guesses = []
+    def turn(this, opp:Player):
+        success = False
+        if len(this.guesses) >= 100 or this.sunkcount >= 5:
+            return "Gameover."
+        while not success:
+            x = rand(0, 100)
+            if x in this.guesses:
+                continue
+            else:
+                t = opp.get_board().guess(x)
+                this.guesses.append(x)
+                if "Sunk" in t[0]:
+                    this.sunkcount += 1
+                return t
 #--AI that uses a basic 2-stage Hunt/Target algorithm
 class BasicAI(AIPlayer):
     pass
