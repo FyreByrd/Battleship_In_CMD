@@ -15,7 +15,7 @@ Avg. Guess: 8.909 &mu;s
 | Gameover    | 95.39 | [44, 100]|
 ### BasicAI
 Iterations: 1,000,000  
-Time:       8:31.64
+Time:       8:31.64  
 Avg. Guess: 8.230 &mu;s
 |             | Mean  | Range    |
 |---          |:-:    |:-:       |
