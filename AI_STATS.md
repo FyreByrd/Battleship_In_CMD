@@ -30,7 +30,10 @@ Untested
 ## Head-to-Head
 A test of how the AI compares in a competitive match against the other AI.
 ### StupidAI x BasicAI
-Untested
+Iterations: 100,000  
+Time:       2:24.51  
+Win Rate: 0.847% (StupidAI)  
+Win Rate: 99.15% (BasicAI)
 ### StupidAI x AdvancedAI
 Untested
 ### BasicAI x AdvancedAI
