@@ -4,25 +4,23 @@ Tested on an HP laptop with intel CORE i7 8th Gen and 8GB RAM
 A test of how the AI performs on randomly generated boards.
 ### StupidAI
 Iterations: 1,000,000  
-Time:       14:09.79  
-Avg. Guess: 8.909 &mu;s
+Time:       7:18.17  
 |             | Mean  | Range    |
 |---          |:-:    |:-:       |
-| First Sunk  | 50.55 | [2, 96]  |
-| Second Sunk | 68.88 | [8, 97]  |
-| Third Sunk  | 80.27 | [21, 98] |
-| Fourth Sunk | 88.68 | [31, 99] |
+| First Sunk  | 50.56 | [2, 96]  |
+| Second Sunk | 68.89 | [8, 97]  |
+| Third Sunk  | 80.28 | [20, 98] |
+| Fourth Sunk | 88.69 | [33, 99] |
 | Gameover    | 95.39 | [44, 100]|
 ### BasicAI
 Iterations: 1,000,000  
-Time:       8:31.64  
-Avg. Guess: 8.230 &mu;s
+Time:       6:19.83  
 |             | Mean  | Range    |
 |---          |:-:    |:-:       |
-| First Sunk  | 12.06 | [2, 51]  |
-| Second Sunk | 23.70 | [5, 65]  |
-| Third Sunk  | 35.49 | [8, 72]  |
-| Fourth Sunk | 47.95 | [14, 79] |
+| First Sunk  | 12.06 | [2, 49]  |
+| Second Sunk | 23.70 | [5, 64]  |
+| Third Sunk  | 35.48 | [8, 72]  |
+| Fourth Sunk | 47.97 | [14, 79] |
 | Gameover    | 62.17 | [23, 100]|
 ### AdvancedAI
 Untested
@@ -30,10 +28,10 @@ Untested
 ## Head-to-Head
 A test of how the AI compares in a competitive match against the other AI.
 ### StupidAI x BasicAI
-Iterations: 100,000  
-Time:       2:24.51  
-Win Rate: 0.847% (StupidAI)  
-Win Rate: 99.15% (BasicAI)
+Iterations: 1,000,000  
+Time:       5:36.99  
+Win Rate: 0.878% (StupidAI)  
+Win Rate: 99.12% (BasicAI)
 ### StupidAI x AdvancedAI
 Untested
 ### BasicAI x AdvancedAI
