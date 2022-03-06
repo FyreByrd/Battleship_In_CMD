@@ -36,8 +36,3 @@ Win Rate: 99.92% (BasicAI)
 Untested
 ### BasicAI x AdvancedAI
 Untested
-
-Test Time: 324.50658226013184
-Tests: 1000000
-Win Rate:
-Mean:  0.000779
