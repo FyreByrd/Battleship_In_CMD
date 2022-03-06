@@ -127,7 +127,7 @@ class BasicAI(AIPlayer):
             this.mode = "TARGET"
             neighbors = this.board.neighbors(i)
             for n in neighbors:
-                if (n not in this.to_try) and (n in this.all) and (n != -1):
+                if (n not in this.to_try) and (n in this.all) and (n >= 0):
                     this.to_try.append(n)
             if "Sunk" in t[0]:
                 this.score += 1

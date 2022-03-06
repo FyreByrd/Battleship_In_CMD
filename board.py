@@ -145,7 +145,7 @@ class Board:
     #<<<<<Coordinate Neighbor Functions
     #--returns coordinate directly above
     def u(this, c:int):
-        return c - 10 if c - 10 > 0 else -1
+        return c - 10 if c - 10 >= 0 else -1
     #--returns coordinate directly below
     def d(this, c:int):
         return c + 10 if c + 10 < 100 else -1
