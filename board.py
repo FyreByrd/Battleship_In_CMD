@@ -181,7 +181,7 @@ class Board:
                 available = False
             elif this.data["raw"][i] != "0":
                 available = False
-            elif i % 10 == 9:
+            elif i % 10 == 9  and i != ind + (l - 1) * 10 ** dir:
                 if i < 99:
                     j = i + 10**dir
                     if j % 10 == 0:
