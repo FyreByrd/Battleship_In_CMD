@@ -299,7 +299,6 @@ class BattleShipMain():
                     print(" Unrecognized command sequence:")
                     print(" '"+" ".join(sel)+"'")
                     print(" Use command 'help' for help")
-    
     #--main loop function
     def main_loop(this):
         playing = True

@@ -14,14 +14,14 @@ Time:       7:18.17
 | Gameover    | 95.39 | [44, 100]|
 ### BasicAI
 Iterations: 1,000,000  
-Time:       6:19.83  
+Time:       6:13.28  
 |             | Mean  | Range    |
 |---          |:-:    |:-:       |
-| First Sunk  | 12.06 | [2, 49]  |
-| Second Sunk | 23.70 | [5, 64]  |
-| Third Sunk  | 35.48 | [8, 72]  |
-| Fourth Sunk | 47.97 | [14, 79] |
-| Gameover    | 62.17 | [23, 100]|
+| First Sunk  | 11.99 | [2, 51]  |
+| Second Sunk | 23.59 | [5, 59]  |
+| Third Sunk  | 35.31 | [8, 70]  |
+| Fourth Sunk | 47.69 | [14, 77] |
+| Gameover    | 61.32 | [22, 84] |
 ### AdvancedAI
 Untested
 
@@ -29,10 +29,15 @@ Untested
 A test of how the AI compares in a competitive match against the other AI.
 ### StupidAI x BasicAI
 Iterations: 1,000,000  
-Time:       5:36.99  
-Win Rate: 0.878% (StupidAI)  
-Win Rate: 99.12% (BasicAI)
+Time:       5:24.51  
+Win Rate: 0.078% (StupidAI)  
+Win Rate: 99.92% (BasicAI)
 ### StupidAI x AdvancedAI
 Untested
 ### BasicAI x AdvancedAI
 Untested
+
+Test Time: 324.50658226013184
+Tests: 1000000
+Win Rate:
+Mean:  0.000779
