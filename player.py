@@ -247,7 +247,7 @@ class AdvancedAI(AIPlayer):
                 this.score += 1
                 this.analyze_hits()
         #anti-choke heuristic
-        if len(this.guesses) > 50 + len(this.hits):
+        if len(this.guesses) > 50 + len(this.hits)//2:
             this.unlikely.clear()
             this.mode = "TARGET"
         return t
