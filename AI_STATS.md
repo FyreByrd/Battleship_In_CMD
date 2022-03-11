@@ -41,6 +41,12 @@ Time:       5:24.51
 Win Rate: 0.078% (StupidAI)  
 Win Rate: 99.92% (BasicAI)
 ### StupidAI x AdvancedAI
-Untested
+Iterations: 100,000  
+Time:       1:42:32.66  
+Win Rate: 0.028% (StupidAI)  
+Win Rate: 99.97% (AdvancedAI)
 ### BasicAI x AdvancedAI
-Untested
+Iterations: 100,000  
+Time:       1:35:46.68  
+Win Rate: 24.67% (BasicAI)  
+Win Rate: 75.33% (AdvancedAI)
