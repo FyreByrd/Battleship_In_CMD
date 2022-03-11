@@ -23,7 +23,15 @@ Time:       6:13.28
 | Fourth Sunk | 47.69 | [14, 77] |
 | Gameover    | 61.32 | [22, 84] |
 ### AdvancedAI
-Untested
+Iterations: 100,000  
+Time:       1:41:55.47  
+|             | Mean  | Range    |
+|---          |:-:    |:-:       |
+| First Sunk  | 8.74  | [2, 26]  |
+| Second Sunk | 17.44 | [5, 53]  |
+| Third Sunk  | 26.56 | [10, 66] |
+| Fourth Sunk | 37.07 | [15, 71] |
+| Gameover    | 51.03 | [21, 81] |
 
 ## Head-to-Head
 A test of how the AI compares in a competitive match against the other AI.
