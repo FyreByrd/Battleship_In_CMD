@@ -4,6 +4,7 @@
 #<<<<<Import Statements>>>>>
 from player import HumanPlayer, StupidAI, BasicAI, AdvancedAI, WebPlayer
 import os
+from random import randint
 
 #<<<<<Miscellaneous Variables, Classes, and Functions>>>>>
 #--welcome message/logo
@@ -208,8 +209,8 @@ class BattleShipMain():
         selecting = True
         opponent_menu = [
             ("1", ": Easy", StupidAI),
-            ("X", ": Normal [Under Development]", BasicAI),
-            ("X", ": Hard   [Under Development]", AdvancedAI),
+            ("2", ": Normal [Under Development]", BasicAI),
+            ("3", ": Hard   [Under Development]", AdvancedAI),
             ("X", ": Web    [Under Development]", WebPlayer)]
         opp_sel = StupidAI
         #----opponent selection
@@ -219,13 +220,13 @@ class BattleShipMain():
                 print(" "+o[0]+o[1])
             s = this.get_input()
             for o in opponent_menu:
-                if s == o[0]:
+                if s == o[0] and s != "X":
                     opp_sel = o[2]
                     selecting = False
                     break
             if selecting:
                 print(" Invalid opponent selection.")    
-        order = 0#randint(0,1)
+        order = randint(0,1)
         opp = opp_sel()
         turn = order
         t = " "
@@ -299,6 +300,8 @@ class BattleShipMain():
                     print(" Unrecognized command sequence:")
                     print(" '"+" ".join(sel)+"'")
                     print(" Use command 'help' for help")
+        winner = this.player.name if this.player.score >= 5 else opp.name
+        print(winner+" Won!")
     #--main loop function
     def main_loop(this):
         playing = True
@@ -318,7 +321,6 @@ class BattleShipMain():
                 print(" username: "+str(this.player))
             elif opt == "new":
                 this.game_loop()
-                print("In main menu")
             elif opt == "clear":
                 clear_screen()
             elif opt == "quit":
