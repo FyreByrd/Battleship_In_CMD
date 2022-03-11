@@ -30,7 +30,8 @@ class Board:
             "H1","H2","H3","H4","H5","H6","H7","H8","H9","H10",
             "I1","I2","I3","I4","I5","I6","I7","I8","I9","I10",
             "J1","J2","J3","J4","J5","J6","J7","J8","J9","J10",]
-    
+        this.last_guessed = -1
+
     #<<<<<Output Functions>>>>>
     #--formats board as string for printing
     def __str__(this):
@@ -49,12 +50,17 @@ class Board:
         out +="|VVVVVVVVVVVVVVVVVVVVVVVVV|\n"
         out +="|## 1 2 3 4 5 6 7 8 9 10##|\n"
         out +="|#########################|\n"
+        g = -1#this.last_guessed
         for i in range(10):
             out += "|"+this.rows[i]+"#"
             for j in range(10):
                 k = j + 10*i
-                out += "."+str(this.dat2char(k, "board"))
-            out += ".#"+this.rows[i]+"|\n"
+                if (g != -1) and (k == g or (k - 1 == g and k%10 != 0 and (k-1)%10 != 9)):
+                    out += "|"+str(this.dat2char(k, "board"))
+                else:  
+                    out += "."+str(this.dat2char(k, "board"))
+            out += "|" if i*10+9 == g else "."
+            out += "#"+this.rows[i]+"|\n"
         out +="|#########################|\n"
         out +="|## 1 2 3 4 5 6 7 8 9 10##|\n"
         out +="'^^^^^^^^^^^^^^^^^^^^^^^^^'"
@@ -86,6 +92,7 @@ class Board:
                 r = "Hit and Sunk."
             else:
                 r = "Hit."
+        this.last_guessed = g
         return (r, this.coord_array[g])
     #--returns just the radar portion of the board as a string
     def radar(this):
