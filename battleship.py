@@ -6,6 +6,7 @@
 from player import HumanPlayer, StupidAI, BasicAI, AdvancedAI, WebPlayer
 import os
 from random import randint
+from time import asctime as date
 
 #<<<<<Miscellaneous Variables, Classes, and Functions>>>>>
 #--welcome message/logo
@@ -39,9 +40,19 @@ class BattleShipMain():
         inp = inp.strip()
         if not case_sensitive:
             inp = inp.lower()
-        return inp.split(div) if split else inp  
+        r = inp.split(div) if split else inp
+        if this.logfile_name != "":
+            f = open(this.logfile_name,"a")
+            f.write(str(r)+"\n")
+            f.close()
+        return r  
     #--constructor
-    def __init__(this):
+    def __init__(this, log_file:str=""):
+        this.logfile_name = log_file
+        if log_file != "":
+            f = open(log_file, "w")
+            f.write("BattleShipCMD: "+str(date())+"\n")
+            f.close()
         pname = this.get_input("Type the name you would like to use ",case_sensitive=True)
         this.player = HumanPlayer(pname)
         this.opp = None
@@ -55,6 +66,8 @@ class BattleShipMain():
     #--loop for running a game of Battleship
     def game_loop(this):
         #--setup
+        this.player.score = 0
+        this.player.get_board().clear_board()
         initializing = True #loop flag variable
         initialized = False #check for if board is initialized
         ship_dict = this.player.get_board().shipdict.ships[0]
@@ -210,8 +223,8 @@ class BattleShipMain():
         selecting = True
         opponent_menu = [
             ("1", ": Easy", StupidAI),
-            ("2", ": Normal [Under Development]", BasicAI),
-            ("3", ": Hard   [Under Development]", AdvancedAI),
+            ("2", ": Normal", BasicAI),
+            ("3", ": Hard", AdvancedAI),
             ("X", ": Web    [Under Development]", WebPlayer)]
         opp_sel = StupidAI
         #----opponent selection
@@ -235,23 +248,22 @@ class BattleShipMain():
         #--loop
         playing = True #loop flag variable
         results = ["",""]
-        while playing:
+        prev = ["", ""]
+        while this.player.score < 5 and opp.score < 5 and playing:
             #Opponent's turn
             if turn % 2 == 1:
                 t = opp.turn(this.player)
-                results[1-order] = " "+opp.name+"-> "+str(t[1])+": "+str(t[0])
-            #checks if game is over
-            if t[0] == "Gameover.":
-                playing = False
+                prev[1-order] = results[1-order]
+                results[1-order] = " "+str(turn + 1 - order)+": "+opp.name+"-> "+str(t[1])+": "+str(t[0])
                 turn += 1
-                continue
             print(this.player.get_board())
-            if results[0] != "":
+            print("     You : "+str(this.player.score)+" - "+str(opp.score)+" : "+opp.name)
+            if results[0] != prev[0]:
                 print(results[0])
-            if results[1] != "":
+            if results[1] != prev[1]:
                 print(results[1])
-            player_turn = True
-            while player_turn:
+            #Player's turn
+            while turn % 2 == 0:
                 sel = this.get_input("",split=True)
                 print("")
                 opt = sel[0]
@@ -279,15 +291,11 @@ class BattleShipMain():
                     except ValueError:
                         print(" Invalid coordinates")
                         continue
-                    t = opp.get_board().guess(i)
-                    results[order] = " You-> "+str(t[1])+": "+str(t[0])
+                    t = this.player.turn(opp, c)
+                    prev[order] = results[order]
                     if t[0] != "Already guessed.":
+                        results[order] = " "+str(turn + 1 - order)+": You-> "+str(t[1])+": "+str(t[0])
                         turn += 1
-                        n = "~"
-                        if "Hit" in t[0]:
-                            n = "!"
-                        this.player.get_board().insert(n, this.player.get_board().conv2int(c), "radar")
-                        player_turn = False
                 elif opt == "board":
                     print(this.player.get_board())
                 elif opt == "radar":
@@ -296,13 +304,18 @@ class BattleShipMain():
                     clear_screen()
                 elif opt == "quit":
                     playing = False
-                    player_turn = False
+                    break
                 else:
                     print(" Unrecognized command sequence:")
                     print(" '"+" ".join(sel)+"'")
                     print(" Use command 'help' for help")
-        winner = this.player.name if this.player.score >= 5 else opp.name
-        print(winner+" Won!")
+        if results[0] != prev[0]:
+            print(results[0])
+        if results[1] != prev[1]:
+            print(results[1])
+        print(this.player.get_board())
+        winner = this.player.name if this.player.score >= 5 else (opp.name if opp.score >= 5 else "No one") 
+        print(winner+" won")
     #--main loop function
     def main_loop(this):
         playing = True
