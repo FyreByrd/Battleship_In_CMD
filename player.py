@@ -33,10 +33,16 @@ class HumanPlayer(Player):
     def turn(this, opponent:Player, c:tuple):
         i = this.board.conv2int(c)
         s = opponent.get_board().guess(i)
-        if "Miss" in s:
-            this.board.insert("O",c,"radar")
-        elif "Hit" in s:
-            this.board.insert("X",c,"radar")
+        n = "~"
+        if "Miss" in s[0]:
+            this.board.insert("O",i,"radar")
+        elif "Hit" in s[0]:
+            this.board.insert("X",i,"radar")
+            n = "!"
+            if "Sunk" in s[0]:
+                this.score += 1
+        if "Already guessed" not in s[0]:
+            this.board.insert(n, i, "radar")
         return s
 
 #VVV#NOT IMPLEMENTED#VVV#
