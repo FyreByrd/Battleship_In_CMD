@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #battleship.py: contains logic to run the game
 #author: Aidan Jones
 
