@@ -1,17 +1,17 @@
 # Statistics for the AI
-Tested on an HP laptop with intel CORE i7 8th Gen and 8GB RAM
+Tested on an HP laptop with intel CORE i7 8th Gen and 16GB RAM
 ## Solo
 A test of how the AI performs on randomly generated boards.
 ### StupidAI
 Iterations: 1,000,000  
-Time:       7:18.17  
+Time:       20:07.47  
 |             | Mean  | Range    |
 |---          |:-:    |:-:       |
-| First Sunk  | 50.56 | [2, 96]  |
-| Second Sunk | 68.89 | [8, 97]  |
+| First Sunk  | 50.55 | [2, 96]  |
+| Second Sunk | 68.90 | [7, 97]  |
 | Third Sunk  | 80.28 | [20, 98] |
-| Fourth Sunk | 88.69 | [33, 99] |
-| Gameover    | 95.39 | [44, 100]|
+| Fourth Sunk | 88.67 | [37, 99] |
+| Gameover    | 95.38 | [45, 100]|
 ### BasicAI
 Iterations: 1,000,000  
 Time:       6:13.28  
