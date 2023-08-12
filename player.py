@@ -56,6 +56,12 @@ class AIPlayer(Player):
     def __init__(this, name:str="AI"):
         super().__init__(name)
         this.board.randomize()
+    #--for testing only. clears the state of the AI without resetting the board
+    def clear_state(this):
+        this.score = 0
+    def new_board(this):
+        this.board.clear_board()
+        this.board.randomize()
 #--AI that uses a PRNG to exhaust the board
 class StupidAI(AIPlayer):
     def __init__(this, name:str="AI (Easy)"):
@@ -75,6 +81,9 @@ class StupidAI(AIPlayer):
                 if "Sunk" in t[0]:
                     this.score += 1
                 return t
+    def clear_state(this):
+        super().clear_state()
+        this.guesses.clear()
 #--AI that uses a basic 2-stage Hunt/Target algorithm
 class BasicAI(AIPlayer):
     #--constructor
@@ -138,6 +147,23 @@ class BasicAI(AIPlayer):
             if "Sunk" in t[0]:
                 this.score += 1
         return t
+    def clear_state(this):
+        super().clear_state()
+        this.parity.clear()
+        this.all.clear()
+        #builds list of valid guesses
+        for i in range(100):
+            this.all.append(i)
+        #builds list of parity guesses
+        flip = 0
+        for i in range(1, 100, 2):
+            this.parity.append(i-flip)
+            if i % 10 == 9:
+                flip = 1 if flip == 0 else 0
+        this.to_try.clear()
+        this.mode = "Hunt"
+    def new_board(this):
+        super().new_board()
 #--AI that uses a Probability Density Function to aid a 2-stage Hunt/Target algorithm
 class AdvancedAI(AIPlayer):
     #--constructor
@@ -257,3 +283,14 @@ class AdvancedAI(AIPlayer):
             this.unlikely.clear()
             this.mode = "TARGET"
         return t
+    def clear_state(this):
+        super().clear_state()
+        this.mode = "HUNT"
+        this.parity = ([1, 0] * 5 + [0, 1] * 5) * 5
+        this.misses.clear()
+        this.unlikely.clear()
+        this.hits.clear()
+        this.sinks.clear()
+        this.guesses.clear()
+        this.probability_cloud = [0] * 100
+        this.max_index = 0
