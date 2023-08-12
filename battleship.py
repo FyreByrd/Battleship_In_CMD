@@ -7,6 +7,7 @@ from player import HumanPlayer, StupidAI, BasicAI, AdvancedAI, WebPlayer
 import os
 from random import randint
 from time import asctime as date
+from aitest import test
 
 #<<<<<Miscellaneous Variables, Classes, and Functions>>>>>
 #--welcome message/logo
@@ -328,6 +329,7 @@ class BattleShipMain():
                 print(" help   - displays this message")
                 print(" whoami - displays your username")
                 print(" new    - creates new game")
+                print(" test   - test the AI")
                 print(" clear  - unclogs the screen")
                 print(" quit   - exits the program")
                 print("")
@@ -335,10 +337,45 @@ class BattleShipMain():
                 print(" username: "+str(this.player))
             elif opt == "new":
                 this.game_loop()
+            elif opt == "test":
+                this.test_loop()
             elif opt == "clear":
                 clear_screen()
             elif opt == "quit":
                 playing = False
+            else:
+                print(" Unrecognized command sequence:")
+                print(" '"+" ".join(sel)+"'")
+                print(" Use command 'help' for help")
+    #--loop for testing
+    def test_loop(this):
+        testing = True
+        while testing:
+            sel = this.get_input("",split=True)
+            opt = sel[0]
+            if opt == "help":
+                print(" Testing:")
+                print(" help   - displays this message")
+                print(" run   - test the AI")
+                print("    usage:")
+                print("    guess [sx] [sbaf] ([sbaf]) [1-6]")
+                print("    s: solo test")
+                print("    x: head to head")
+                print("    [sbaf]: first AI (Stupid, Basic, Advanced, FastAdvanced)")
+                print("    [sbaf]: second AI (Stupid, Basic, Advanced, FastAdvanced)")
+                print("    [1-6]: 10 ** n iterations")
+                print("")
+                print("    example:")
+                print("    run s a 5")
+                print(" clear  - unclogs the screen")
+                print(" quit   - returns to main menu")
+                print("")
+            elif opt == "run":
+                test(" ".join(sel[1:]))
+            elif opt == "clear":
+                clear_screen()
+            elif opt == "quit":
+                testing = False
             else:
                 print(" Unrecognized command sequence:")
                 print(" '"+" ".join(sel)+"'")
